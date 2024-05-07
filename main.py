@@ -28,45 +28,11 @@ new_special_tokens = [] # new tokens which will be added to the tokenizer
 task_start_token = "<s>"  # start of task token
 eos_token = "</s>" # eos token of tokenizer
 
-def json2token_test(obj, update_special_tokens_for_json_key: bool = True, sort_json_key: bool = True):
-    """
-    Convert an ordered JSON object into a token sequence
-    """
-    if type(obj) == dict:
-        if len(obj) == 1 and "text_sequence" in obj:
-            return obj["text_sequence"]
-        else:
-            output = ""
-            if sort_json_key:
-                keys = sorted(obj.keys(), reverse=True)
-            else:
-                keys = obj.keys()
-            for k in keys:
-                if update_special_tokens_for_json_key:
-                    new_special_tokens.append(fr"<s_{k}>") if fr"<s_{k}>" not in new_special_tokens else None
-                    new_special_tokens.append(fr"</s_{k}>") if fr"</s_{k}>" not in new_special_tokens else None
-                output += (
-                    fr"<s_{k}>"
-                    + json2token_test(obj[k], update_special_tokens_for_json_key, sort_json_key)
-                    + fr"</s_{k}>"
-                )
-            return output
-    elif type(obj) == list:
-        return r"<sep/>".join(
-            [json2token_test(item, update_special_tokens_for_json_key, sort_json_key) for item in obj]
-        )
-    else:
-        # excluded special tokens for now
-        obj = str(obj)
-        if f"<{obj}/>" in new_special_tokens:
-            obj = f"<{obj}/>"  # for categorical special tokens
-        return obj
+
 
 
 def preprocess_documents_for_donut_test(sample):
-    # create Donut-style input
-    # text = json.loads(sample["text"])
-    # d_doc = task_start_token + json2token(text) + eos_token
+
     # convert all images to RGB
     image = sample["image"].convert('RGB')
     return {"image": image}
@@ -124,14 +90,7 @@ def run_prediction(sample, model=model, processor=processor):
 # Define endpoint for generating predictions
 @app.route('/generate_prediction', methods=['POST'])
 def generate_prediction():
-    # Load the image
-    # image_file = request.files['image']
-    # image = Image.open(image_file)
-
-    # # Preprocess image for the model
-    # sample = {"image": image}
-    # pixel_values = processor(sample, return_tensors="pt").pixel_values.squeeze()
-
+    
     # # Run prediction
     with torch.no_grad():
         # outputs = model(pixel_values.to(device))
@@ -139,6 +98,9 @@ def generate_prediction():
         # prediction = processor.batch_decode(outputs.sequences)[0]
         prediction_json = json.dumps(prediction)
     print(prediction)
+    print("JSON FOrmat")
+    print(prediction_json)
+
     #return jsonify({"prediction": prediction_json})
 
 if __name__ == '__main__':
