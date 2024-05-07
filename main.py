@@ -7,6 +7,7 @@ import random
 import numpy as np
 from flask import Flask, request, jsonify
 from datasets import load_dataset
+import json
 
 # Load our model from Hugging Face
 processor = DonutProcessor.from_pretrained("philschmid/donut-base-sroie")
@@ -136,8 +137,12 @@ def generate_prediction():
         # outputs = model(pixel_values.to(device))
         prediction = run_prediction(test_sample_test)
         # prediction = processor.batch_decode(outputs.sequences)[0]
-
-    return jsonify({"prediction": prediction})
+        prediction_json = json.dumps(prediction)
+    print(prediction)
+    #return jsonify({"prediction": prediction_json})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    #  app.run(debug=True)
+    generate_prediction()
+    
+    
