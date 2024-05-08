@@ -91,7 +91,7 @@ def transform_and_tokenize_test(sample, processor=processor, split="train", max_
 # need at least 32-64GB of RAM to run this
 processed_dataset_test = proc_dataset_test.map(transform_and_tokenize_test,remove_columns=["image"])
 
-test_sample_test = processed_dataset_test[0]
+test_sample_test = processed_dataset_test
 
 def run_prediction(sample, model=model, processor=processor):
     # prepare inputs
@@ -133,14 +133,15 @@ def generate_prediction():
     # pixel_values = processor(sample, return_tensors="pt").pixel_values.squeeze()
 
     # # Run prediction
-    with torch.no_grad():
-        # outputs = model(pixel_values.to(device))
-        prediction = run_prediction(test_sample_test)
-        # prediction = processor.batch_decode(outputs.sequences)[0]
-        prediction_json = json.dumps(prediction)
-    print(prediction)
-    print("JSON FOrmat")
-    print(prediction_json)
+    for i in range(0,9):
+        with torch.no_grad():
+            # outputs = model(pixel_values.to(device))
+            prediction = run_prediction(test_sample_test[i])
+            # prediction = processor.batch_decode(outputs.sequences)[0]
+            prediction_json = json.dumps(prediction)
+            print(prediction)
+            print("JSON FOrmat")
+            print(prediction_json)
 
     #return jsonify({"prediction": prediction_json})
 
